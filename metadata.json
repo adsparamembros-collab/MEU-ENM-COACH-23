@@ -1,0 +1,5 @@
+{
+  "name": "ENEM Coach - Assistente de Estudos",
+  "description": "Um assistente de estudos completo para o ENEM, com gerador de questões personalizadas e um corretor de redações detalhado, tudo com o poder da IA do Gemini.",
+  "requestFramePermissions": []
+}
