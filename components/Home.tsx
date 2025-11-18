@@ -35,30 +35,33 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const firstName = user?.name.split(' ')[0];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-8">
         {/* Hero Section */}
-        <div className="relative overflow-hidden bg-slate-900 rounded-3xl shadow-xl text-white p-8 md:p-12">
+        <div className="relative overflow-hidden bg-slate-900 rounded-3xl shadow-2xl text-white p-8 md:p-12 border border-slate-800">
             {/* Abstract Background Pattern */}
-            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-sky-500 opacity-10 blur-3xl"></div>
+            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-sky-600 opacity-20 blur-3xl animate-pulse"></div>
             <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-600 opacity-20 blur-3xl"></div>
 
             <div className="relative z-10">
+                <span className="inline-block py-1 px-3 rounded-full bg-sky-900/50 border border-sky-700/50 text-sky-300 text-xs font-bold tracking-wider uppercase mb-4">
+                    Plataforma Inteligente
+                </span>
                 <h1 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
                     Olá, <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">{firstName}</span>!
                 </h1>
                 <p className="text-slate-300 text-lg mb-8 max-w-xl leading-relaxed">
-                    Sua jornada rumo à aprovação continua. Hoje é um ótimo dia para dominar um novo tópico. O que vamos estudar agora?
+                    Sua jornada rumo à aprovação continua. Hoje é um ótimo dia para dominar um novo tópico e superar seus limites.
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <button 
                         onClick={() => onNavigate('questions')}
-                        className="bg-sky-600 hover:bg-sky-500 text-white font-bold text-lg py-3 px-8 rounded-full shadow-lg shadow-sky-900/20 transition-all duration-300 transform hover:-translate-y-1"
+                        className="bg-sky-600 hover:bg-sky-500 text-white font-bold text-lg py-3.5 px-8 rounded-xl shadow-lg shadow-sky-900/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
                     >
                         Começar Simulado
                     </button>
                     <button 
                          onClick={() => onNavigate('essay')}
-                        className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold text-lg py-3 px-8 rounded-full border border-white/10 transition-all duration-300"
+                        className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold text-lg py-3.5 px-8 rounded-xl border border-white/10 transition-all duration-300"
                     >
                         Corrigir Redação
                     </button>
