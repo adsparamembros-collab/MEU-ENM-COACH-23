@@ -4,7 +4,21 @@ import type { QuizQuestion, EssayCorrection, VideoClass } from '../types';
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 const cleanJSON = (text: string) => {
-    return text.replace(/^```json\s*/, '').replace(/\s*```$/, '').trim();
+    // Try to extract JSON from code blocks or find the first array/object structure
+    const match = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/);
+    if (match) {
+        return match[1].trim();
+    }
+    
+    // Fallback: find the first { or [ and the last } or ]
+    const firstOpen = text.search(/[\{\[]/);
+    const lastClose = text.search(/[\}\]][^\{\}\]]*$/);
+    
+    if (firstOpen !== -1 && lastClose !== -1) {
+        return text.substring(firstOpen, lastClose + 1);
+    }
+    
+    return text.trim();
 };
 
 export const generateQuestions = async (subject: string, topic: string, count: number): Promise<QuizQuestion[]> => {
