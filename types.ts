@@ -1,3 +1,9 @@
+export interface User {
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
 export interface QuizQuestion {
   question: string;
   options: string[];

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 const BookOpenIcon: React.FC<{className?: string}> = ({className}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -18,67 +19,104 @@ const ChartBarIcon: React.FC<{className?: string}> = ({className}) => (
     </svg>
 );
 
+const PlayIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 interface HomeProps {
     onNavigate: (tab: string) => void;
 }
 
 export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
+  const { user } = useAuth();
+  const firstName = user?.name.split(' ')[0];
+
   return (
     <div className="space-y-8 animate-fade-in">
         {/* Hero Section */}
-        <div className="bg-white p-8 md:p-12 rounded-2xl shadow-lg text-center border border-slate-100 bg-gradient-to-b from-white to-slate-50">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
-                Sua aprovação no <span className="text-sky-600">ENEM</span> começa aqui.
-            </h1>
-            <p className="text-slate-500 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-                Utilize o poder da Inteligência Artificial para personalizar seus estudos, corrigir suas redações em segundos e acompanhar sua evolução.
-            </p>
-            <button 
-                onClick={() => onNavigate('questions')}
-                className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-lg py-4 px-10 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-            >
-                Começar Simulado Agora
-            </button>
+        <div className="relative overflow-hidden bg-slate-900 rounded-3xl shadow-xl text-white p-8 md:p-12">
+            {/* Abstract Background Pattern */}
+            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-sky-500 opacity-10 blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-600 opacity-20 blur-3xl"></div>
+
+            <div className="relative z-10">
+                <h1 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
+                    Olá, <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">{firstName}</span>!
+                </h1>
+                <p className="text-slate-300 text-lg mb-8 max-w-xl leading-relaxed">
+                    Sua jornada rumo à aprovação continua. Hoje é um ótimo dia para dominar um novo tópico. O que vamos estudar agora?
+                </p>
+                <div className="flex flex-wrap gap-4">
+                    <button 
+                        onClick={() => onNavigate('questions')}
+                        className="bg-sky-600 hover:bg-sky-500 text-white font-bold text-lg py-3 px-8 rounded-full shadow-lg shadow-sky-900/20 transition-all duration-300 transform hover:-translate-y-1"
+                    >
+                        Começar Simulado
+                    </button>
+                    <button 
+                         onClick={() => onNavigate('essay')}
+                        className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold text-lg py-3 px-8 rounded-full border border-white/10 transition-all duration-300"
+                    >
+                        Corrigir Redação
+                    </button>
+                </div>
+            </div>
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <button 
                 onClick={() => onNavigate('questions')}
-                className="flex flex-col items-center p-8 bg-white rounded-xl shadow-md border border-slate-100 hover:border-sky-200 hover:shadow-lg transition-all duration-300 group text-left md:text-center"
+                className="flex flex-col p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:border-sky-200 hover:shadow-xl transition-all duration-300 group text-left h-full"
             >
-                <div className="p-3 bg-sky-50 rounded-full mb-4 group-hover:bg-sky-100 transition-colors">
-                    <BookOpenIcon className="text-sky-600" />
+                <div className="w-12 h-12 flex items-center justify-center bg-sky-50 rounded-xl mb-4 group-hover:bg-sky-100 transition-colors">
+                    <BookOpenIcon className="text-sky-600 w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Questões Ilimitadas</h3>
-                <p className="text-slate-500 text-sm">
-                    Gere simulados personalizados por matéria e tópico. Estude exatamente o que você precisa.
+                <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-sky-700">Questões Ilimitadas</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                    Gere simulados personalizados por matéria e tópico.
                 </p>
             </button>
 
             <button 
                 onClick={() => onNavigate('essay')}
-                className="flex flex-col items-center p-8 bg-white rounded-xl shadow-md border border-slate-100 hover:border-sky-200 hover:shadow-lg transition-all duration-300 group text-left md:text-center"
+                className="flex flex-col p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:border-indigo-200 hover:shadow-xl transition-all duration-300 group text-left h-full"
             >
-                <div className="p-3 bg-indigo-50 rounded-full mb-4 group-hover:bg-indigo-100 transition-colors">
-                    <PencilAltIcon className="text-indigo-600" />
+                <div className="w-12 h-12 flex items-center justify-center bg-indigo-50 rounded-xl mb-4 group-hover:bg-indigo-100 transition-colors">
+                    <PencilAltIcon className="text-indigo-600 w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Corretor de Redação</h3>
-                <p className="text-slate-500 text-sm">
-                    Feedback detalhado nas 5 competências do ENEM em segundos, com sugestões de melhoria.
+                <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-indigo-700">Corretor de Redação</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                    Feedback detalhado com nota e sugestões em segundos.
+                </p>
+            </button>
+            
+             <button 
+                onClick={() => onNavigate('videoClasses')}
+                className="flex flex-col p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:border-rose-200 hover:shadow-xl transition-all duration-300 group text-left h-full"
+            >
+                <div className="w-12 h-12 flex items-center justify-center bg-rose-50 rounded-xl mb-4 group-hover:bg-rose-100 transition-colors">
+                    <PlayIcon className="text-rose-600 w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-rose-700">Videoaulas</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                    Curadoria de conteúdo do YouTube para reforçar o aprendizado.
                 </p>
             </button>
 
             <button 
                 onClick={() => onNavigate('evolution')}
-                className="flex flex-col items-center p-8 bg-white rounded-xl shadow-md border border-slate-100 hover:border-sky-200 hover:shadow-lg transition-all duration-300 group text-left md:text-center"
+                className="flex flex-col p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300 group text-left h-full"
             >
-                <div className="p-3 bg-emerald-50 rounded-full mb-4 group-hover:bg-emerald-100 transition-colors">
-                    <ChartBarIcon className="text-emerald-600" />
+                <div className="w-12 h-12 flex items-center justify-center bg-emerald-50 rounded-xl mb-4 group-hover:bg-emerald-100 transition-colors">
+                    <ChartBarIcon className="text-emerald-600 w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Sua Evolução</h3>
-                <p className="text-slate-500 text-sm">
-                    Visualize seu progresso com gráficos intuitivos e descubra seus pontos fortes.
+                <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-emerald-700">Sua Evolução</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                    Visualize seu progresso com gráficos intuitivos.
                 </p>
             </button>
         </div>
