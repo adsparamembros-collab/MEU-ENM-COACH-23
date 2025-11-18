@@ -18,39 +18,70 @@ const ChartBarIcon: React.FC<{className?: string}> = ({className}) => (
     </svg>
 );
 
-export const Home: React.FC = () => {
-  return (
-    <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg animate-fade-in text-center">
-      <h1 className="text-4xl font-bold text-slate-800 mb-2">
-        Bem-vindo ao <span className="text-sky-600">ENEM</span><span className="font-light">Coach</span>!
-      </h1>
-      <p className="text-slate-500 mb-8 max-w-2xl mx-auto">
-        Sua plataforma completa de preparação para o ENEM. Gere simulados, corrija redações e acompanhe seu progresso, tudo em um só lugar.
-      </p>
+interface HomeProps {
+    onNavigate: (tab: string) => void;
+}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="flex flex-col items-center p-6 bg-slate-50 rounded-lg border border-slate-200">
-            <BookOpenIcon className="text-sky-600 mb-4" />
-            <h3 className="text-xl font-semibold text-slate-700 mb-2">Questões Ilimitadas</h3>
-            <p className="text-slate-500 text-sm">
-                Crie simulados personalizados por matéria e tópico para focar nos seus pontos fracos.
+export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
+  return (
+    <div className="space-y-8 animate-fade-in">
+        {/* Hero Section */}
+        <div className="bg-white p-8 md:p-12 rounded-2xl shadow-lg text-center border border-slate-100 bg-gradient-to-b from-white to-slate-50">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                Sua aprovação no <span className="text-sky-600">ENEM</span> começa aqui.
+            </h1>
+            <p className="text-slate-500 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+                Utilize o poder da Inteligência Artificial para personalizar seus estudos, corrigir suas redações em segundos e acompanhar sua evolução.
             </p>
+            <button 
+                onClick={() => onNavigate('questions')}
+                className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-lg py-4 px-10 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            >
+                Começar Simulado Agora
+            </button>
         </div>
-        <div className="flex flex-col items-center p-6 bg-slate-50 rounded-lg border border-slate-200">
-            <PencilAltIcon className="text-sky-600 mb-4" />
-            <h3 className="text-xl font-semibold text-slate-700 mb-2">Correção de Redação</h3>
-            <p className="text-slate-500 text-sm">
-                Receba feedback detalhado baseado nas 5 competências do ENEM e melhore sua escrita.
-            </p>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button 
+                onClick={() => onNavigate('questions')}
+                className="flex flex-col items-center p-8 bg-white rounded-xl shadow-md border border-slate-100 hover:border-sky-200 hover:shadow-lg transition-all duration-300 group text-left md:text-center"
+            >
+                <div className="p-3 bg-sky-50 rounded-full mb-4 group-hover:bg-sky-100 transition-colors">
+                    <BookOpenIcon className="text-sky-600" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Questões Ilimitadas</h3>
+                <p className="text-slate-500 text-sm">
+                    Gere simulados personalizados por matéria e tópico. Estude exatamente o que você precisa.
+                </p>
+            </button>
+
+            <button 
+                onClick={() => onNavigate('essay')}
+                className="flex flex-col items-center p-8 bg-white rounded-xl shadow-md border border-slate-100 hover:border-sky-200 hover:shadow-lg transition-all duration-300 group text-left md:text-center"
+            >
+                <div className="p-3 bg-indigo-50 rounded-full mb-4 group-hover:bg-indigo-100 transition-colors">
+                    <PencilAltIcon className="text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Corretor de Redação</h3>
+                <p className="text-slate-500 text-sm">
+                    Feedback detalhado nas 5 competências do ENEM em segundos, com sugestões de melhoria.
+                </p>
+            </button>
+
+            <button 
+                onClick={() => onNavigate('evolution')}
+                className="flex flex-col items-center p-8 bg-white rounded-xl shadow-md border border-slate-100 hover:border-sky-200 hover:shadow-lg transition-all duration-300 group text-left md:text-center"
+            >
+                <div className="p-3 bg-emerald-50 rounded-full mb-4 group-hover:bg-emerald-100 transition-colors">
+                    <ChartBarIcon className="text-emerald-600" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Sua Evolução</h3>
+                <p className="text-slate-500 text-sm">
+                    Visualize seu progresso com gráficos intuitivos e descubra seus pontos fortes.
+                </p>
+            </button>
         </div>
-        <div className="flex flex-col items-center p-6 bg-slate-50 rounded-lg border border-slate-200">
-            <ChartBarIcon className="text-sky-600 mb-4" />
-            <h3 className="text-xl font-semibold text-slate-700 mb-2">Análise de Desempenho</h3>
-            <p className="text-slate-500 text-sm">
-                Visualize sua evolução nas matérias com gráficos intuitivos e identifique onde melhorar.
-            </p>
-        </div>
-      </div>
     </div>
   );
 };

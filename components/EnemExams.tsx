@@ -3,10 +3,10 @@ import type { QuizQuestion, QuizResult } from '../types';
 import { generateEnemExam } from '../services/geminiService';
 
 const Loader: React.FC<{area: string, year: string}> = ({area, year}) => (
-  <div className="flex flex-col items-center justify-center text-center p-8">
-    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-sky-600 mb-4"></div>
-    <h3 className="text-xl font-semibold text-slate-700">Gerando seu Simulado do ENEM...</h3>
-    <p className="text-slate-500">Aguarde um momento. Estamos preparando 15 questões selecionadas de {area} do ENEM {year}.</p>
+  <div className="flex flex-col items-center justify-center text-center p-12 animate-fade-in">
+    <div className="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 border-t-sky-600 mb-6"></div>
+    <h3 className="text-xl font-bold text-slate-800">Gerando Simulado Oficial...</h3>
+    <p className="text-slate-500 max-w-lg mt-2">Estamos compilando 15 questões de <span className="font-semibold">{area}</span> do ano {year}.</p>
   </div>
 );
 
@@ -25,7 +25,7 @@ const QuizResults: React.FC<{
     useEffect(() => {
         const newResult: QuizResult = {
             subject,
-            topic: 'Simulado ENEM',
+            topic: 'Simulado ENEM Oficial',
             score,
             totalQuestions: questions.length,
             date: new Date().toISOString(),
@@ -40,37 +40,73 @@ const QuizResults: React.FC<{
     const percentage = Math.round((score / questions.length) * 100);
 
     return (
-        <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg animate-fade-in">
-            <h2 className="text-3xl font-bold text-center text-slate-800 mb-2">Resultado Final</h2>
-            <p className="text-center text-slate-500 mb-6">Veja seu desempenho no simulado de {subject}.</p>
-            <div className={`flex items-center justify-center w-32 h-32 mx-auto rounded-full ${percentage >= 70 ? 'bg-green-100' : percentage >= 50 ? 'bg-yellow-100' : 'bg-red-100'} mb-6`}>
-                <span className={`text-4xl font-bold ${percentage >= 70 ? 'text-green-600' : percentage >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>{percentage}%</span>
+        <div className="bg-white p-6 md:p-10 rounded-2xl shadow-lg animate-fade-in">
+             <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-slate-900 mb-2">Resultado do Simulado</h2>
+                <p className="text-slate-500">{subject}</p>
             </div>
-            <p className="text-center text-lg text-slate-700 mb-8">Você acertou {score} de {questions.length} questões.</p>
+
+            <div className="flex flex-col items-center mb-10">
+                <div className="relative">
+                     <svg className="w-40 h-40 transform -rotate-90">
+                        <circle className="text-slate-100" strokeWidth="12" stroke="currentColor" fill="transparent" r="70" cx="80" cy="80" />
+                        <circle 
+                            className={`${percentage >= 60 ? 'text-green-500' : 'text-sky-500'} transition-all duration-1000 ease-out`} 
+                            strokeWidth="12" 
+                            strokeDasharray={440} 
+                            strokeDashoffset={440 - (440 * percentage) / 100} 
+                            strokeLinecap="round" 
+                            stroke="currentColor" 
+                            fill="transparent" 
+                            r="70" 
+                            cx="80" 
+                            cy="80" 
+                        />
+                    </svg>
+                    <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-slate-800">
+                        <span className="text-4xl font-bold">{score}</span>
+                        <span className="text-sm text-slate-500">de {questions.length}</span>
+                    </div>
+                </div>
+            </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6 max-w-4xl mx-auto">
                 {questions.map((q, index) => {
                     const userAnswer = userAnswers[index];
                     const isCorrect = userAnswer === q.correctAnswerIndex;
                     return (
-                        <div key={index} className={`border-l-4 p-4 rounded-r-lg ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-                            <p className="font-semibold text-slate-800 mb-2" dangerouslySetInnerHTML={{ __html: `${index + 1}. ${q.question.replace(/\n/g, '<br />')}` }}></p>
-                            <p className="text-sm text-slate-600">Sua resposta: <span className="font-medium">{userAnswer !== null ? q.options[userAnswer] : 'Não respondida'}</span></p>
-                            <p className="text-sm text-slate-600">Resposta correta: <span className="font-medium text-green-700">{q.options[q.correctAnswerIndex]}</span></p>
-                            {!isCorrect && (
-                                <details className="mt-2 text-sm">
-                                    <summary className="cursor-pointer font-medium text-sky-600">Ver explicação</summary>
-                                    <p className="mt-1 text-slate-600">{q.explanation}</p>
-                                </details>
-                            )}
+                        <div key={index} className={`border rounded-xl p-5 ${isCorrect ? 'border-green-200 bg-green-50/50' : 'border-red-200 bg-red-50/50'}`}>
+                            <div className="flex items-start gap-3 mb-3">
+                                <span className="font-bold text-slate-400 text-sm mt-1">#{index + 1}</span>
+                                <div className="flex-1">
+                                    <p className="font-medium text-slate-800 mb-3 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: q.question.replace(/\n/g, '<br />') }}></p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                        <div className={`p-3 rounded-lg border ${isCorrect ? 'bg-green-100 border-green-300 text-green-800' : 'bg-red-100 border-red-300 text-red-800'}`}>
+                                            <span className="font-bold block text-xs uppercase mb-1">Sua Resposta</span>
+                                            {userAnswer !== null ? q.options[userAnswer] : 'Em branco'}
+                                        </div>
+                                        {!isCorrect && (
+                                             <div className="p-3 rounded-lg border bg-white border-slate-200 text-slate-700">
+                                                <span className="font-bold block text-xs uppercase mb-1 text-green-600">Correta</span>
+                                                {q.options[q.correctAnswerIndex]}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {!isCorrect && (
+                                        <div className="mt-3 text-xs text-slate-500 bg-white p-3 rounded border border-slate-100">
+                                            <span className="font-bold text-slate-700 mr-1">Resolução:</span> {q.explanation}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="text-center mt-8">
-                <button onClick={onRestart} className="bg-sky-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-700 transition-colors duration-200">
-                    Fazer Outro Simulado
+            <div className="text-center mt-10">
+                <button onClick={onRestart} className="bg-slate-900 text-white font-bold py-3 px-8 rounded-full hover:bg-slate-800 transition-colors duration-200 shadow-lg">
+                    Voltar ao Menu de Simulados
                 </button>
             </div>
         </div>
@@ -121,7 +157,7 @@ export const EnemExams: React.FC = () => {
         } else {
             setQuizState('finished');
         }
-    }, 500);
+    }, 300);
   };
   
   const handleRestart = () => {
@@ -158,18 +194,24 @@ export const EnemExams: React.FC = () => {
     const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
     return (
-        <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg animate-fade-in w-full max-w-4xl mx-auto">
-             <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm font-medium text-sky-600">Questão {currentQuestionIndex + 1} de {questions.length}</p>
-                    <p className="text-sm text-slate-500">{area} - ENEM {year}</p>
+        <div className="bg-white p-6 md:p-10 rounded-2xl shadow-xl animate-fade-in w-full max-w-4xl mx-auto border border-slate-100">
+             <div className="mb-8">
+                <div className="flex justify-between items-end mb-3">
+                     <div className="flex items-center">
+                        <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded mr-2">QUESTÃO {currentQuestionIndex + 1}</span>
+                        <span className="text-xs font-medium text-slate-400 hidden sm:inline">{area} • {year}</span>
+                     </div>
+                     <span className="text-xs font-bold text-slate-400">{Math.round(progress)}%</span>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full h-2.5">
-                    <div className="bg-sky-600 h-2.5 rounded-full" style={{ width: `${progress}%`, transition: 'width 0.5s ease-in-out' }}></div>
+                <div className="w-full bg-slate-100 rounded-full h-1.5">
+                    <div className="bg-sky-600 h-1.5 rounded-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }}></div>
                 </div>
             </div>
 
-            <p className="text-lg text-slate-800 mb-6 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: currentQuestion.question.replace(/\n/g, '<br />') }}></p>
+            <div className="prose prose-slate max-w-none mb-8">
+                <p className="text-lg text-slate-900 font-medium leading-loose" dangerouslySetInnerHTML={{ __html: currentQuestion.question.replace(/\n/g, '<br />') }}></p>
+            </div>
+
             <div className="space-y-3">
                 {currentQuestion.options.map((option, index) => {
                      const isSelected = userAnswers[currentQuestionIndex] === index;
@@ -177,11 +219,13 @@ export const EnemExams: React.FC = () => {
                          <button
                             key={index}
                             onClick={() => handleAnswer(index)}
-                            className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 flex items-start
-                                ${isSelected ? 'bg-sky-500 border-sky-500 text-white scale-105 shadow-lg' : 'bg-slate-50 border-slate-200 hover:bg-sky-100 hover:border-sky-300'}`}
+                            className={`w-full text-left p-4 rounded-lg border transition-all duration-200 flex items-start group hover:shadow-md
+                                ${isSelected ? 'bg-sky-50 border-sky-500 shadow-sm' : 'bg-white border-slate-200 hover:border-sky-200 hover:bg-sky-50/30'}`}
                          >
-                            <span className="font-bold mr-3">{String.fromCharCode(65 + index)}.</span>
-                            <span className="flex-1">{option}</span>
+                            <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center text-sm font-bold mr-3 transition-colors ${isSelected ? 'bg-sky-600 border-sky-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 group-hover:border-sky-300 group-hover:text-sky-600'}`}>
+                                {String.fromCharCode(65 + index)}
+                            </div>
+                            <span className={`flex-1 py-1 ${isSelected ? 'text-slate-900 font-medium' : 'text-slate-600'}`}>{option}</span>
                          </button>
                     )
                 })}
@@ -191,40 +235,52 @@ export const EnemExams: React.FC = () => {
   }
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg animate-fade-in">
-      <h2 className="text-3xl font-bold text-slate-800 mb-2">Simulados Oficiais ENEM</h2>
-      <p className="text-slate-500 mb-8">Teste seus conhecimentos com provas completas de anos anteriores geradas por IA.</p>
+    <div className="bg-white p-6 md:p-10 rounded-2xl shadow-lg animate-fade-in max-w-3xl mx-auto">
+      <div className="text-center mb-10">
+         <h2 className="text-3xl font-bold text-slate-900 mb-2">Simulados Oficiais</h2>
+         <p className="text-slate-500">Pratique com questões reais de provas anteriores do ENEM.</p>
+      </div>
       
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">{error}</div>}
+      {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-center text-sm" role="alert">{error}</div>}
 
       <form onSubmit={handleGenerate} className="space-y-6 max-w-lg mx-auto">
         <div>
-          <label htmlFor="year" className="block text-sm font-medium text-slate-700 mb-2">Ano do Exame</label>
-          <select
-            id="year"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            className="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-          >
-            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
+          <label htmlFor="year" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ano do Exame</label>
+          <div className="relative">
+            <select
+                id="year"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 appearance-none font-medium text-slate-700"
+            >
+                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
         </div>
 
         <div>
-          <label htmlFor="area" className="block text-sm font-medium text-slate-700 mb-2">Área de Conhecimento</label>
-          <select
-            id="area"
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-            className="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-          >
-            {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
-          </select>
+          <label htmlFor="area" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Área de Conhecimento</label>
+          <div className="relative">
+            <select
+                id="area"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 appearance-none font-medium text-slate-700"
+            >
+                {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
         </div>
         
-        <div>
-          <button type="submit" disabled={isLoading} className="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 transition-colors duration-200 disabled:bg-slate-400">
-            {isLoading ? 'Gerando...' : 'Iniciar Simulado (15 Questões)'}
+        <div className="pt-4">
+          <button type="submit" disabled={isLoading} className="w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-xl hover:bg-slate-800 shadow-lg hover:shadow-xl transform active:scale-[0.98] transition-all duration-200 disabled:bg-slate-300 disabled:transform-none disabled:shadow-none">
+            {isLoading ? 'Processando...' : 'Iniciar Simulado (15 Questões)'}
           </button>
         </div>
       </form>

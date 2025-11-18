@@ -4,31 +4,19 @@ import type { QuizQuestion, EssayCorrection, VideoClass } from '../types';
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 const cleanJSON = (text: string) => {
-    // Try to extract JSON from code blocks or find the first array/object structure
-    const match = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/);
-    if (match) {
-        return match[1].trim();
-    }
-    
-    // Fallback: find the first { or [ and the last } or ]
-    const firstOpen = text.search(/[\{\[]/);
-    const lastClose = text.search(/[\}\]][^\{\}\]]*$/);
-    
-    if (firstOpen !== -1 && lastClose !== -1) {
-        return text.substring(firstOpen, lastClose + 1);
-    }
-    
-    return text.trim();
+    // Removes markdown code blocks and trims
+    return text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '').trim();
 };
 
 export const generateQuestions = async (subject: string, topic: string, count: number): Promise<QuizQuestion[]> => {
   try {
-    const prompt = `Gere ${count} questões de múltipla escolha no estilo do ENEM sobre a matéria "${subject}" com foco no tópico "${topic}". Cada questão deve ter 4 opções de resposta. Forneça o índice da resposta correta e uma breve explicação.`;
+    const prompt = `Gere ${count} questões de múltipla escolha no estilo do ENEM sobre a matéria "${subject}" com foco no tópico "${topic}". Cada questão deve ter 4 opções de resposta (A, B, C, D). Forneça o índice da resposta correta e uma breve explicação.`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
+        temperature: 0.4, // Lower temperature for factual consistency
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -62,12 +50,13 @@ export const generateQuestions = async (subject: string, topic: string, count: n
 
 export const correctEssay = async (essayText: string): Promise<EssayCorrection> => {
     try {
-        const prompt = `Aja como um corretor experiente do ENEM. Analise a seguinte redação e forneça uma avaliação detalhada com base nas 5 competências do ENEM. Para cada competência, atribua uma nota de 0 a 200 e um feedback. Forneça também uma nota geral (0 a 1000), um feedback geral e sugestões de melhoria. A redação é a seguinte: "${essayText}"`;
+        const prompt = `Aja como um corretor experiente do ENEM. Analise a seguinte redação e forneça uma avaliação detalhada com base nas 5 competências do ENEM. Para cada competência, atribua uma nota de 0 a 200 (em intervalos de 40 pontos) e um feedback construtivo. Forneça também uma nota geral (soma das competências), um feedback geral encorajador e sugestões práticas de melhoria. A redação é: "${essayText}"`;
 
         const response = await ai.models.generateContent({
             model: "gemini-3-pro-preview",
             contents: prompt,
             config: {
+                temperature: 0.7, // Slightly higher for creative feedback
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.OBJECT,
@@ -128,13 +117,14 @@ export const correctEssay = async (essayText: string): Promise<EssayCorrection> 
 
 export const generateEnemExam = async (year: string, area: string): Promise<QuizQuestion[]> => {
     try {
-        // Reduced to 15 questions to ensure reliable generation within token limits and acceptable latency
+        // 15 questions
         const prompt = `Gere um simulado resumido da prova de '${area}' do ENEM ${year}. O simulado deve conter exatamente 15 questões de múltipla escolha com 5 opções de resposta cada (A, B, C, D, E). As questões devem ser fiéis ao estilo, nível de dificuldade e distribuição de conteúdo do exame real daquele ano. Para cada questão, forneça o enunciado, as 5 opções, o índice da resposta correta (0 a 4) e uma explicação detalhada da resolução.`;
 
         const response = await ai.models.generateContent({
             model: "gemini-3-pro-preview",
             contents: prompt,
             config: {
+                temperature: 0.3,
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.ARRAY,
@@ -180,6 +170,7 @@ export const findVideoClasses = async (subject: string, topic: string): Promise<
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                temperature: 0.4,
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.ARRAY,
