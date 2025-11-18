@@ -1,16 +1,29 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { QuizQuestion, EssayCorrection, VideoClass } from '../types';
 
-// VERIFICAÇÃO PARA VERCEL:
-// Garante que a chave existe antes de tentar inicializar.
-// Se process.env.API_KEY estiver vazia (não configurada na Vercel), o app avisará.
-const API_KEY = process.env.API_KEY;
+// HELPER PARA RECUPERAR A CHAVE DE API
+// Tenta recuperar de process.env (padrão Node/Build) ou import.meta.env (Padrão Vite/Vercel Frontend)
+const getApiKey = () => {
+    // @ts-ignore - Ignora erro de tipagem se process não existir
+    if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+        // @ts-ignore
+        return process.env.API_KEY;
+    }
+    // @ts-ignore - Ignora erro de tipagem se import.meta não existir
+    if (import.meta && import.meta.env && import.meta.env.VITE_API_KEY) {
+        // @ts-ignore
+        return import.meta.env.VITE_API_KEY;
+    }
+    return "";
+};
 
-const ai = new GoogleGenAI({ apiKey: API_KEY || "" });
+const API_KEY = getApiKey();
+
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const checkApiKey = () => {
     if (!API_KEY || API_KEY.includes("YOUR_API_KEY") || API_KEY.length < 10) {
-        throw new Error("A Chave de API não está configurada corretamente. No painel da Vercel, vá em Settings > Environment Variables e adicione 'API_KEY'.");
+        throw new Error("Erro de Configuração: A Chave de API não foi encontrada. Na Vercel, adicione uma variável de ambiente chamada 'VITE_API_KEY' com o valor da sua chave.");
     }
 };
 
@@ -21,12 +34,12 @@ const cleanJSON = (text: string) => {
 const handleGenAIError = (error: any) => {
     console.error("GenAI Error:", error);
     if (error.message?.includes("API key") || error.message?.includes("403")) {
-        return new Error("Erro de Autenticação: Verifique se a API_KEY está correta nas configurações da Vercel.");
+        return new Error("Erro de Permissão (403): Verifique se a 'VITE_API_KEY' está correta na Vercel e se a API do Gemini está habilitada no Google Cloud.");
     }
     if (error.message?.includes("503") || error.message?.includes("overloaded")) {
         return new Error("O serviço de IA está temporariamente sobrecarregado. Tente novamente em alguns instantes.");
     }
-    return new Error("Ocorreu um erro inesperado na comunicação com a IA.");
+    return new Error(`Erro na IA: ${error.message || "Falha inesperada."}`);
 };
 
 export const generateQuestions = async (subject: string, topic: string, count: number): Promise<QuizQuestion[]> => {
