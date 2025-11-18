@@ -3,6 +3,10 @@ import type { QuizQuestion, EssayCorrection, VideoClass } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
+const cleanJSON = (text: string) => {
+    return text.replace(/^```json\s*/, '').replace(/\s*```$/, '').trim();
+};
+
 export const generateQuestions = async (subject: string, topic: string, count: number): Promise<QuizQuestion[]> => {
   try {
     const prompt = `Gere ${count} questões de múltipla escolha no estilo do ENEM sobre a matéria "${subject}" com foco no tópico "${topic}". Cada questão deve ter 4 opções de resposta. Forneça o índice da resposta correta e uma breve explicação.`;
@@ -32,7 +36,7 @@ export const generateQuestions = async (subject: string, topic: string, count: n
       },
     });
 
-    const jsonText = response.text.trim();
+    const jsonText = cleanJSON(response.text || "[]");
     const questions = JSON.parse(jsonText);
     return questions as QuizQuestion[];
 
@@ -47,7 +51,7 @@ export const correctEssay = async (essayText: string): Promise<EssayCorrection> 
         const prompt = `Aja como um corretor experiente do ENEM. Analise a seguinte redação e forneça uma avaliação detalhada com base nas 5 competências do ENEM. Para cada competência, atribua uma nota de 0 a 200 e um feedback. Forneça também uma nota geral (0 a 1000), um feedback geral e sugestões de melhoria. A redação é a seguinte: "${essayText}"`;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-pro",
+            model: "gemini-3-pro-preview",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -98,7 +102,7 @@ export const correctEssay = async (essayText: string): Promise<EssayCorrection> 
             },
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = cleanJSON(response.text || "{}");
         const correction = JSON.parse(jsonText);
         return correction as EssayCorrection;
 
@@ -110,10 +114,11 @@ export const correctEssay = async (essayText: string): Promise<EssayCorrection> 
 
 export const generateEnemExam = async (year: string, area: string): Promise<QuizQuestion[]> => {
     try {
-        const prompt = `Gere um simulado completo da prova de '${area}' do ENEM ${year}. O simulado deve conter exatamente 45 questões de múltipla escolha com 5 opções de resposta cada (A, B, C, D, E). As questões devem ser fiéis ao estilo, nível de dificuldade e distribuição de conteúdo do exame real daquele ano. Para cada questão, forneça o enunciado, as 5 opções, o índice da resposta correta (0 a 4) e uma explicação detalhada da resolução.`;
+        // Reduced to 15 questions to ensure reliable generation within token limits and acceptable latency
+        const prompt = `Gere um simulado resumido da prova de '${area}' do ENEM ${year}. O simulado deve conter exatamente 15 questões de múltipla escolha com 5 opções de resposta cada (A, B, C, D, E). As questões devem ser fiéis ao estilo, nível de dificuldade e distribuição de conteúdo do exame real daquele ano. Para cada questão, forneça o enunciado, as 5 opções, o índice da resposta correta (0 a 4) e uma explicação detalhada da resolução.`;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-pro",
+            model: "gemini-3-pro-preview",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -137,7 +142,7 @@ export const generateEnemExam = async (year: string, area: string): Promise<Quiz
             },
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = cleanJSON(response.text || "[]");
         const questions = JSON.parse(jsonText);
         if (!Array.isArray(questions) || questions.length === 0 || !questions[0].options || questions[0].options.length !== 5) {
             throw new Error("A IA gerou um formato de simulado inesperado. Tente novamente.");
@@ -177,7 +182,7 @@ export const findVideoClasses = async (subject: string, topic: string): Promise<
             },
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = cleanJSON(response.text || "[]");
         const videoClasses = JSON.parse(jsonText);
         return videoClasses as VideoClass[];
 

@@ -6,7 +6,7 @@ const Loader: React.FC<{area: string, year: string}> = ({area, year}) => (
   <div className="flex flex-col items-center justify-center text-center p-8">
     <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-sky-600 mb-4"></div>
     <h3 className="text-xl font-semibold text-slate-700">Gerando seu Simulado do ENEM...</h3>
-    <p className="text-slate-500">Aguarde um momento. Estamos preparando 45 questões de {area} do ENEM {year}. Isso pode levar um minuto.</p>
+    <p className="text-slate-500">Aguarde um momento. Estamos preparando 15 questões selecionadas de {area} do ENEM {year}.</p>
   </div>
 );
 
@@ -54,7 +54,7 @@ const QuizResults: React.FC<{
                     const isCorrect = userAnswer === q.correctAnswerIndex;
                     return (
                         <div key={index} className={`border-l-4 p-4 rounded-r-lg ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-                            <p className="font-semibold text-slate-800 mb-2">{index + 1}. {q.question}</p>
+                            <p className="font-semibold text-slate-800 mb-2" dangerouslySetInnerHTML={{ __html: `${index + 1}. ${q.question.replace(/\n/g, '<br />')}` }}></p>
                             <p className="text-sm text-slate-600">Sua resposta: <span className="font-medium">{userAnswer !== null ? q.options[userAnswer] : 'Não respondida'}</span></p>
                             <p className="text-sm text-slate-600">Resposta correta: <span className="font-medium text-green-700">{q.options[q.correctAnswerIndex]}</span></p>
                             {!isCorrect && (
@@ -224,7 +224,7 @@ export const EnemExams: React.FC = () => {
         
         <div>
           <button type="submit" disabled={isLoading} className="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 transition-colors duration-200 disabled:bg-slate-400">
-            {isLoading ? 'Gerando...' : 'Iniciar Simulado (45 Questões)'}
+            {isLoading ? 'Gerando...' : 'Iniciar Simulado (15 Questões)'}
           </button>
         </div>
       </form>
