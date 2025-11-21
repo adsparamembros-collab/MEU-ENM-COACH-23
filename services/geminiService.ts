@@ -36,6 +36,9 @@ const handleGenAIError = (error: any) => {
     if (error.message?.includes("API key") || error.message?.includes("403")) {
         return new Error("Erro de Permissão (403): Verifique se a 'VITE_API_KEY' está correta na Vercel e se a API do Gemini está habilitada no Google Cloud.");
     }
+    if (error.message?.includes("429") || error.message?.includes("quota") || error.message?.includes("RESOURCE_EXHAUSTED")) {
+        return new Error("Limite de Uso Excedido (429): A cota gratuita da IA foi atingida temporariamente. Aguarde alguns instantes e tente novamente.");
+    }
     if (error.message?.includes("503") || error.message?.includes("overloaded")) {
         return new Error("O serviço de IA está temporariamente sobrecarregado. Tente novamente em alguns instantes.");
     }
@@ -87,8 +90,9 @@ export const correctEssay = async (essayText: string): Promise<EssayCorrection> 
     try {
         const prompt = `Aja como um corretor experiente do ENEM. Analise a seguinte redação e forneça uma avaliação detalhada com base nas 5 competências do ENEM. Para cada competência, atribua uma nota de 0 a 200 (em intervalos de 40 pontos) e um feedback construtivo. Forneça também uma nota geral (soma das competências), um feedback geral encorajador e sugestões práticas de melhoria. A redação é: "${essayText}"`;
 
+        // Alterado para gemini-2.5-flash para maior velocidade e menor chance de erro de cota
         const response = await ai.models.generateContent({
-            model: "gemini-3-pro-preview",
+            model: "gemini-2.5-flash", 
             contents: prompt,
             config: {
                 temperature: 0.7,
@@ -154,8 +158,9 @@ export const generateEnemExam = async (year: string, area: string): Promise<Quiz
     try {
         const prompt = `Gere um simulado resumido da prova de '${area}' do ENEM ${year}. O simulado deve conter exatamente 15 questões de múltipla escolha com 5 opções de resposta cada (A, B, C, D, E). As questões devem ser fiéis ao estilo, nível de dificuldade e distribuição de conteúdo do exame real daquele ano. Para cada questão, forneça o enunciado, as 5 opções, o índice da resposta correta (0 a 4) e uma explicação detalhada da resolução.`;
 
+        // Alterado para gemini-2.5-flash para evitar o erro RESOURCE_EXHAUSTED (cota)
         const response = await ai.models.generateContent({
-            model: "gemini-3-pro-preview",
+            model: "gemini-2.5-flash", 
             contents: prompt,
             config: {
                 temperature: 0.3,
